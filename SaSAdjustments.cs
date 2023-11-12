@@ -53,7 +53,7 @@ namespace SaltAndSacrificeAdjustments
             StaminaRegenRate = Config.Bind(
                 "Player stat regen",
                 "Stamina regeneration rate",
-                8.0f,
+                2.0f,
                 new ConfigDescription("Determines the stamina regeneration rate. Does not affect natural stamina regen and unlike natural regen this regen is applied constantly.",
                 new AcceptableValueRange<float>(0.0f, 20.0f)));
             ManaRegenRate = Config.Bind(
@@ -78,7 +78,7 @@ namespace SaltAndSacrificeAdjustments
             HealthPotionRegenDelay = Config.Bind(
                 "Health potion regen",
                 "Health potion regen delay",
-                300,
+                600,
                 new ConfigDescription("Determines the delay for the health potion regeneration. This value is in seconds.",
                 new AcceptableValueRange<int>(10, 36000)));
 
@@ -91,7 +91,7 @@ namespace SaltAndSacrificeAdjustments
             FocusPotionRegenDelay = Config.Bind(
                 "Focus potion regen",
                 "Focus potion regen delay",
-                300,
+                600,
                 new ConfigDescription("Determines the delay for the focus potion regeneration. This value is in seconds.",
                 new AcceptableValueRange<int>(10, 36000)));
 
@@ -104,7 +104,7 @@ namespace SaltAndSacrificeAdjustments
             RangedAmmoRegenDelay = Config.Bind(
                 "Ammo regen",
                 "Ranged ammo regen delay",
-                30,
+                120,
                 new ConfigDescription("Determines the delay for the health potion regeneration. This value is in seconds.",
                 new AcceptableValueRange<int>(10, 36000)));
 
@@ -131,7 +131,7 @@ namespace SaltAndSacrificeAdjustments
             MouseCursorInversionDisabled = Config.Bind(
                 "General",
                 "Disable mouse cursor inversion",
-                false,
+                true,
                 new ConfigDescription("Disables inversion of mouse cursor when the cursor is on the left part of the screen."));
             DoNotDropSaltOnDeath = Config.Bind(
                 "General",
