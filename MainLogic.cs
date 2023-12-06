@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using HarmonyLib;
 using LootHero.loot;
+using Microsoft.Xna.Framework;
 using ProjectMage.character;
 using ProjectMage.config;
 using ProjectMage.gamestate;
@@ -56,11 +57,25 @@ namespace SaltAndSacrificeAdjustments
         [HarmonyPatch(typeof(PlayerMgr), "Update")]
         public static void MyCustomUpdate(float frameTime, float realTime)
         {
-            Player mainPlayer = GetMainPlayer();
-            if (GameState.state != 1 || mainPlayer.charIdx < 0 || !mainPlayer.active)
+            if (GameState.state != 1)
                 return;
 
-            Character playerCharacter = CharMgr.character[mainPlayer.charIdx];
+            Player mainPlayer = GetMainPlayer();
+            RegeneratePlayer(mainPlayer, frameTime);
+
+            if(IsLocalCoopMode())
+            {
+                Player localCoopPlayer = GetLocalCoopPlayer();
+                RegeneratePlayer(localCoopPlayer, frameTime);
+            }
+        }
+
+        public static void RegeneratePlayer(Player player, float frameTime)
+        {
+            if (player.charIdx < 0 || !player.active)
+                return;
+
+            Character playerCharacter = CharMgr.character[player.charIdx];
             if (playerCharacter.hp <= 0)
                 return;
 
@@ -68,28 +83,28 @@ namespace SaltAndSacrificeAdjustments
             if (staminaRegenRate > 0)
             {
                 playerCharacter.stamina += staminaRegenRate * frameTime;
-                playerCharacter.stamina = Math.Min(playerCharacter.stamina, GetMaxStamina(mainPlayer.stats, true));
+                playerCharacter.stamina = Math.Min(playerCharacter.stamina, GetMaxStamina(player.stats, true));
             }
 
             float healthRegenRate = SaSAdjustments.HealthRegenRate.Value;
             if (healthRegenRate > 0)
             {
                 playerCharacter.hp += healthRegenRate * frameTime;
-                playerCharacter.hp = Math.Min(playerCharacter.hp, GetMaxHP(mainPlayer.stats, true));
+                playerCharacter.hp = Math.Min(playerCharacter.hp, GetMaxHP(player.stats, true));
             }
 
             float manaRegenRate = SaSAdjustments.ManaRegenRate.Value;
             if (manaRegenRate > 0)
             {
                 playerCharacter.mp += manaRegenRate * frameTime;
-                playerCharacter.mp = Math.Min(playerCharacter.mp, GetMaxMP(mainPlayer.stats, true));
+                playerCharacter.mp = Math.Min(playerCharacter.mp, GetMaxMP(player.stats, true));
             }
 
             float rageRegenRate = SaSAdjustments.RageRegenRate.Value;
             if (rageRegenRate > 0)
             {
                 playerCharacter.rage += rageRegenRate * frameTime;
-                playerCharacter.rage = Math.Min(playerCharacter.rage, GetMaxRage(mainPlayer.stats, true));
+                playerCharacter.rage = Math.Min(playerCharacter.rage, GetMaxRage(player.stats, true));
             }
 
             if (SaSAdjustments.FocusPotionRegenEnabled.Value)
@@ -98,7 +113,7 @@ namespace SaltAndSacrificeAdjustments
                 if (_focusPotionRegenDelay <= 0)
                 {
                     _focusPotionRegenDelay = SaSAdjustments.FocusPotionRegenDelay.Value;
-                    AddItem(mainPlayer, "focus_potion", 1, false);
+                    AddItem(player, "focus_potion", 1, false);
                 }
             }
 
@@ -108,7 +123,7 @@ namespace SaltAndSacrificeAdjustments
                 if (_healthPotionRegenDelay <= 0)
                 {
                     _healthPotionRegenDelay = SaSAdjustments.HealthPotionRegenDelay.Value;
-                    AddItem(mainPlayer, "health_potion", 1, false);
+                    AddItem(player, "health_potion", 1, false);
                 }
             }
 
@@ -118,7 +133,7 @@ namespace SaltAndSacrificeAdjustments
                 if (_rangedAmmoRegenDelay <= 0)
                 {
                     _rangedAmmoRegenDelay = SaSAdjustments.RangedAmmoRegenDelay.Value;
-                    AddItem(mainPlayer, "arrow", 1, true);
+                    AddItem(player, "arrow", 1, true);
                 }
             }
 
@@ -128,9 +143,9 @@ namespace SaltAndSacrificeAdjustments
                 if (_grayPearlRegenDelay <= 0)
                 {
                     _grayPearlRegenDelay = SaSAdjustments.GrayPearlRegenDelay.Value;
-                    int pearlCount = CountGrayPearls(mainPlayer.equipment);
+                    int pearlCount = CountGrayPearls(player.equipment);
                     if (pearlCount < SaSAdjustments.GrayPearlRegenLimit.Value)
-                        AddItem(mainPlayer, "gray_pearl", 1, true);
+                        AddItem(player, "gray_pearl", 1, true);
                 }
             }
         }
@@ -219,6 +234,20 @@ namespace SaltAndSacrificeAdjustments
         public static int AddItem(Player __instance, string loot, int count, bool dontList = false)
         {
             throw new NotImplementedException("Gets replaced with Player.AddItem(string,int,bool)");
+        }
+
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(PlayerMgr), "IsLocalCoopMode")]
+        public static bool IsLocalCoopMode()
+        {
+            throw new NotImplementedException("Gets replaced with PlayerMgr.IsLocalCoopMode()");
+        }
+
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(PlayerMgr), "GetLocalCoopPlayer")]
+        public static Player GetLocalCoopPlayer()
+        {
+            throw new NotImplementedException("Gets replaced with PlayerMgr.GetLocalCoopPlayer()");
         }
     }
 }
